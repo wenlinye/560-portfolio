@@ -1,0 +1,56 @@
+---
+title: "Conclusions"
+editor: visual
+---
+
+Crude oil has been the backbone of modern industrialization, powering transportation, manufacturing, and a wide range of economic activities. As such, fluctuations in crude oil prices can have a significant impact on the global economy, affecting everything from inflation and employment rates to national security and geopolitical stability. In recent years, crude oil futures prices, such as WTI, Brent, and NYMEX, have become increasingly popular as financial instruments for investors looking to profit from the volatility of crude oil prices.
+
+However, predicting the future prices of crude oil futures remains a challenging task due to the complex and dynamic nature of the global energy market. There are a multitude of factors that can impact crude oil prices, ranging from economic indicators and natural disasters to oil inventory and production levels. As a result, understanding the key drivers of crude oil prices and their interrelationships is critical for making accurate predictions and informed investment decisions.
+
+Therefore, I want to share with you my time series project, and here is a big picture of my research!
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("mind.png")
+```
+
+The purpose of this project is to investigate the various factors that can affect crude oil futures prices and evaluate the performance of traditional time series models in predicting these prices.
+
+First lets see the Visualization of certain future prices of crude oil The plot displays the daily closing prices of WTI crude oil futures over time with a trend line and 95% confidence interval. The price of WTI crude oil futures has exhibited volatility between approximately 40 and 85 USD per barrel with distinct periods of price movement. The trend line suggests an overall upward trend in the price of WTI crude oil futures over the time period shown, but with short-term fluctuations may be due to supply and demand factors in the global oil market or some other economic factors.
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("WTI_prices.png")
+```
+
+In order to further prove our accuracy of predictions for the future values of crude oil futures, we choose traditional single-variable time-series ARIMA (3,1,3) models, forecasting the lnWTI crude futures prices for next 3 years. The Arima model is predicted within the interval range with a stable and slightly downward trend.
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("arima312.png")
+```
+
+Additionally, I used a GARCH model to analyze the volatility of crude oil prices, particularly including the COVID-19 pandemic. The results showed that there was significant fluctuation in the time series of WTI returns from February 2020 to June 2020, due to a combination of factors such as the COVID-19 pandemic, a supply glut, and a price war between Saudi Arabia and Russia.
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("garch.png")
+```
+
+Then the focus of our work turned to examining Crude Oil Futures Prices interrelations and the relationship between crude oil prices and economic indicators and oil inventory and production levels.
+
+Looking at the estimation results from the VAR model, we can see that the lagged values of Brent, WTI, and NYMEX prices are all statistically significant in explaining the current value of each of the prices. Additionally, the lagged values of Brent and WTI prices are statistically significant in explaining the current value of NYMEX prices.
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("var.png")
+```
+
+Then by analyzing arimiax time series model for, WTI, The regression analysis with ARIMAX model indicates that the log value of WTI futures prices decreases as the inventory level and oil production level increases. This suggests that oversupply of oil and increase in oil supply can lead to a decrease in oil prices. On the other hand, there is a positive relationship between the log value of WTI futures prices and the US Consumer Price Index, indicating that higher inflation levels can lead to an increase in oil prices. The negative relationship between the log value of WTI futures prices and the US Unemployment Rate suggests that weaker economic growth and lower demand for oil can lead to a decrease in oil prices. However, the US Gross Domestic Product and Inflation Rate variables do not seem to have a significant impact on the WTI futures prices in this regression, possibly due to the influence of other factors on their relationship.
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("arimax1.png")
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("arimax2.png")
+```
+
+## Summary and future expectations
+
+Based on the analysis conducted, it can be concluded that the price of crude oil futures is affected by various factors, including inventory levels, production levels, consumer price index, and unemployment rate. For future analysis, It is important to note that the relationships observed in this study are not necessarily causal and may be influenced by other factors not included in the analysis. Additionally, the analysis only covers a specific time period and may not necessarily generalize to other periods or markets.

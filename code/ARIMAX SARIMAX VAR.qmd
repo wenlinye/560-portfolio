@@ -1,0 +1,429 @@
+---
+title: "ARIMAX/SARIMAX/VAR"
+editor: visual
+---
+
+# ARIMAX Model
+
+## Oil production and inventory levels
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+```
+
+```{r, echo=FALSE}
+# load required libraries
+library(readxl)
+
+library(tidyverse)
+
+
+# download oil inventory data from the EIA website
+inventory <- read_excel("WCESTUS1w.xls", sheet = "Data 1", skip = 6)
+inventory <- inventory[, c("30239", "326979")]
+colnames(inventory) <- c("date", "inventory")
+inventory$date <- as.Date(inventory$date)
+inventory <- subset(inventory, date >= as.Date("2018-01-05") & date <= as.Date("2023-02-10"))
+
+
+# Convert inventory data to time series
+inventory_ts <- ts(inventory$inventory, start = c(2018, 1), frequency = 52)
+autoplot(inventory_ts, xlab = "Time Span",ylab = "inventory levels")+ggtitle("US weekly inventory levels from 2018 to present")
+```
+
+```{r, echo=FALSE}
+# download oil production data from the EIA website
+production <- read_excel("WCRFPUS2w.xls", sheet = "Data 1", skip = 6)
+production <- production[, c("30358", "8660")]
+colnames(production) <- c("date", "production")
+production$date <- as.Date(production$date)
+production <- subset(production, date >= as.Date("2018-01-05") & date <= as.Date("2023-02-10"))
+
+
+# Convert production data to time series
+production_ts <- ts(production$production, start = c(2018, 1), frequency = 52)
+autoplot(production_ts, xlab = "Time Span",ylab = "production levels")+ggtitle("US weekly production levels from 2018 to present")
+
+# Merge the "inventory" and "production" data frames based on the "date" column
+merged_df <- merge(inventory, production, by = "date", all = TRUE)
+
+
+```
+
+```{r, echo=FALSE}
+da <- read.csv("datasets_ln.csv", encoding = "UTF-8")
+date<-da[,1]
+date<-as.Date(date)
+
+da[,1]<-date
+da <- da[, c(1, 3)]
+colnames(da)<- c("date", "WTI")
+```
+
+```{r, echo=FALSE}
+
+# Create a sequence of dates from 1/5/2018 to 2/10/2023
+date_range <- seq(as.Date("2018-01-05"), as.Date("2023-02-10"), by = "week")
+
+# Subset the dataframe for the selected date range
+weekly_data <- subset(da, date %in% date_range)
+
+
+merged_da <- merge(merged_df, weekly_data, by = "date", all = TRUE)
+
+dd<-merged_da[,c(1,4,2,3)]
+colnames(dd)<-c("DATE","WTI","inventory","production")
+
+knitr::kable(head(dd))
+```
+
+```{r, echo=FALSE}
+
+
+
+dd3<-dd[,2]
+WTI_ts <- ts(dd3, start = c(2018, 1), frequency = 52)
+
+
+autoplot(WTI_ts, xlab = "Time Span",ylab = "production levels")+ggtitle("US weekly WTI futures price from 2018 to present")
+
+
+
+
+```
+
+```{r, echo=FALSE}
+dd.ts<-ts(dd,start=decimal_date(as.Date("2018-01-05",format = "%Y-%m-%d")),frequency = 52)
+
+autoplot(dd.ts[,c(2:4)], facets=TRUE) +
+  xlab("Year") + ylab("") +
+  ggtitle("Variables influencing WTI in USA")
+
+```
+
+```{r, echo=FALSE}
+lg.dd<-dd #making a copy
+lg.dd$WTI<-log(dd$WTI);lg.dd$inventory<-log(dd$inventory);lg.dd$production<-log(dd$production)
+```
+
+```{r, echo=FALSE}
+lg.dd.ts<-ts(lg.dd,start=decimal_date(as.Date("1947-01-01",format = "%Y-%m-%d")),frequency = 52)
+
+autoplot(lg.dd.ts[,c(2:4)], facets=TRUE) +
+  xlab("Year") + ylab("") +
+  ggtitle("Variables influencing WTI in USA")
+```
+
+```{r, echo=FALSE}
+xreg <- cbind(Inv = lg.dd.ts[, "inventory"],
+              Pro = lg.dd.ts[, "production"])
+
+fit <- auto.arima(lg.dd.ts[, "WTI"], xreg = xreg)
+summary(fit)
+
+checkresiduals(fit)
+```
+
+```{r, echo=FALSE}
+# lg.dd$WTI<-ts(lg.dd$WTI,star=decimal_date(as.Date("1947-01-01",format = "%Y-%m-%d")),frequency = 52)
+# lg.dd$inventory<-ts(lg.dd$inventory,star=decimal_date(as.Date("1947-01-01",format = "%Y-%m-%d")),frequency = 52)
+# lg.dd$production<-ts(lg.dd$production,star=decimal_date(as.Date("1947-01-01",format = "%Y-%m-%d")),frequency = 52)
+# 
+# ############# First fit the linear model##########
+# fit.reg <- lm(WTI ~ inventory+production, data=lg.dd)
+# summary(fit.reg)
+```
+
+## economic factors
+
+```{r, echo=FALSE}
+WTI <-da[,c(1,2)]
+GDP<-read.csv("GDP.csv")
+CPI<-read.csv("CPI.csv")
+INF<-read.csv("INF.csv")
+UNR<-read.csv("UNRATE.csv")
+colnames(GDP)<-c("date","GDP")
+colnames(CPI)<-c("date","CPI")
+colnames(INF)<-c("date","INF")
+colnames(UNR)<-c("date","UNR")
+
+GDP$date <- as.Date(GDP$date)
+CPI$date <- as.Date(CPI$date)
+INF$date <- as.Date(INF$date)
+UNR$date <- as.Date(UNR$date)
+
+# Merge WTI and GDP by date
+merge1 <- merge(WTI, GDP, by = "date")
+
+# Merge CPI with the result of the previous merge by date
+merge2 <- merge(merge1, CPI, by = "date")
+
+# Merge INF with the result of the previous merge by date
+merge3 <- merge(merge2, INF, by = "date")
+
+# Merge UNR with the final merge by date
+merged_eco <- merge(merge3, UNR, by = "date")
+
+
+eco.ts<-ts(merged_eco,star=decimal_date(as.Date("2018-02-01",format = "%Y-%m-%d")),frequency = 12)
+
+autoplot(eco.ts[,c(2:6)], facets=TRUE) +
+  xlab("Year") + ylab("") +
+  ggtitle("Economic Variables influencing WTI in USA")
+
+
+
+```
+
+```{r, echo=FALSE}
+lg.merged_eco<-merged_eco #making a copy
+lg.merged_eco$GDP<-log(merged_eco$GDP);lg.merged_eco$CPI<-log(merged_eco$CPI);lg.merged_eco$INF<-log(merged_eco$INF) ;lg.merged_eco$UNR<-log(merged_eco$UNR)
+```
+
+```{r, echo=FALSE}
+xreg <- cbind(GDP = eco.ts[, "GDP"],
+              CPI = eco.ts[, "CPI"],
+              INF= eco.ts[, "INF"],
+              UNR = eco.ts[, "UNR"])
+
+fit <- auto.arima(eco.ts[, "WTI"], xreg = xreg)
+summary(fit)
+```
+
+```{r, echo=FALSE}
+lg.eco.ts<-ts(lg.merged_eco,star=decimal_date(as.Date("2018-02-01",format = "%Y-%m-%d")),frequency = 12)
+xreg <- cbind(GDP = lg.eco.ts[, "GDP"],
+              CPI = lg.eco.ts[, "CPI"],
+              INF= lg.eco.ts[, "INF"],
+              UNR = lg.eco.ts[, "UNR"])
+
+fit <- auto.arima(lg.eco.ts[, "WTI"], xreg = xreg)
+summary(fit)
+```
+
+# VAR Model
+
+### Pick variables by background information and plotting
+
+Based on the analysis in the previous tab, in order to verify the mean spillover effect between the three variables (WTI, Brent and NYMEX), this paper establishes a VAR model for further analysis. The VAR model, also known as the vector autoregressive model, is a commonly used econometric model. This model expands the autoregressive model with only one variable. It adopts the form of simultaneous multi-equation and is not based on economic theory. In each equation, the endogenous variables regress the lag periods of all endogenous variables in the model, thereby estimating the dynamic relationship of all endogenous variables and making predictions. This model extends the time series analysis from a single time series to a multivariate time series, and is widely used in many fields such as finance and economy. $$r_t= \varphi_0 + \phi r_{t-1}+a_t$$\
+where is $\varphi$ constant vector of dimension, $\phi$ is a square matrix of constant order, and $a_t$ is a weakly stationary sequence with uncorrelated sequences.
+
+In the previous analysis, we have verified that the original sequence is a non-stationary sequence. Therefore, we firstly perform logarithm and first-order difference processing on the price sequence, and process the price sequence of Brent, WTI and NYMEX as a yield sequence.
+
+The time series plot of the three selected variables is as follows:
+
+```{r, message=FALSE, echo=FALSE}
+library(rugarch)
+library(tseries)
+library(FinTS)
+library(ggplot2)
+library(xts)
+library(fBasics)
+```
+
+```{r, echo=FALSE}
+da <- read.csv("datasets_ln.csv", encoding = "UTF-8")
+```
+
+```{r, echo=FALSE}
+date<-da[,1]
+date<-as.Date(date)
+da1<-da[,2]
+rets<-as.xts(da1,date)
+da2<-diff(log(rets))
+dlnBrent<-na.omit(da2)
+
+da3<-da[,3]
+rets<-as.xts(da3,date)
+da4<-diff(log(rets))
+dlnWTI<-na.omit(da4)
+
+da5<-da[,4]
+rets<-as.xts(da5,date)
+da6<-diff(log(rets))
+dlnNYMEX<-na.omit(da6)
+
+
+dd<-data.frame(dlnBrent,dlnWTI,dlnNYMEX)
+dd<-dd[,c(1,2,3)]
+colnames(dd)<-c("dlnBrent","dlnWTI","dlnNYMEX")
+
+knitr::kable(head(dd))
+
+# Plot
+plot(dlnBrent,xlab='Date(2018-2023)',ylab='dlnBrent',main='dlnBrent time series')
+plot(dlnWTI,xlab='Date(2018-2023)',ylab='dlnWTI',main='dlnWTI time series')
+plot(dlnNYMEX,xlab='Date(2018-2023)',ylab='dlnNYMEX',main='dlnNYMEX time series')
+```
+
+### Fitted all different models using VAR()
+
+```{r, message = FALSE, warning = FALSE, echo=FALSE}
+
+library(zoo)
+library(vars)
+library(tseries)
+
+# Determination of lag order
+VARselect(dd[, c(1:3)], lag.max=10, type="both")
+
+```
+
+```{r, echo=FALSE}
+# Fit VAR
+summary(VAR(dd[, c(1:3)], p=1, type='both'))
+
+```
+
+```{r, echo=FALSE}
+summary(VAR(dd[, c(1:3)], p=10, type='both'))
+```
+
+```{r, echo=FALSE}
+# Cross validation
+n=length(dd$dlnBrent)
+k=76
+rmse1 <- matrix(NA, 180,3)
+rmse2 <- matrix(NA, 180,3)
+rmse3 <- matrix(NA,41,4)
+year<-c()
+```
+
+```{r, message = FALSE, echo=FALSE}
+# Convert data frame to time series object
+library(lubridate) # time
+ts_obj <- ts(dd[, c(1:3)], star=decimal_date(as.Date("2018-01-03",format = "%Y-%m-%d")),frequency = 4)
+st <- tsp(ts_obj )[1]+(k-1)/4 
+
+for(i in 1:45)
+{
+  
+  xtrain <- window(ts_obj, end=st + i-1)
+  xtest <- window(ts_obj, start=st + (i-1) + 1/4, end=st + i)
+  
+  
+  fit <- VAR(ts_obj, p=1, type='both')
+  fcast <- predict(fit, n.ahead = 4)
+  
+  fbrent<-fcast$fcst$dlnBrent
+  fWTI<-fcast$fcst$dlnWTI
+  fNYMEX<-fcast$fcst$dlnNYMEX
+  ff<-data.frame(fbrent[,1],fWTI[,1],fNYMEX[,1])
+  
+  year<-st + (i-1) + 1/4
+  
+  ff<-ts(ff,start=c(year,1),frequency = 4)
+  
+  a = 4*i-3
+  b= 4*i
+  rmse1[c(a:b),]  <-sqrt((ff-xtest)^2)
+  
+  fit2 <- VAR(ts_obj, p=10, type='both')
+  fcast2 <- predict(fit2, n.ahead = 4)
+  
+  fbrent<-fcast2$fcst$dlnBrent
+  fWTI<-fcast2$fcst$dlnWTI
+  fNYMEX<-fcast2$fcst$dlnNYMEX
+  ff2<-data.frame(fbrent[,1],fWTI[,1],fNYMEX[,1])
+  
+  year<-st + (i-1) + 1/4
+  
+  ff2<-ts(ff2,start=c(year,1),frequency = 4)
+    
+  a = 4*i-3
+  b= 4*i
+  rmse2[c(a:b),]  <-sqrt((ff2-xtest)^2)
+}
+```
+
+```{r, echo=FALSE}
+yr = rep(c(1978:2022),each =4)
+qr = rep(paste0("Q",1:4),45)
+
+rmse1 = data.frame(yr,qr,rmse1)
+names(rmse1) =c("Year", "Quater","dlnBrent","dlnWTI","dlnNYMEX")
+rmse2 = data.frame(yr,qr,rmse2)
+names(rmse2) =c("Year", "Quater","dlnBrent","dlnWTI","dlnNYMEX")
+```
+
+### Used cross validation to compare the above models. Plot to find the best model.
+
+```{r, echo=FALSE}
+ggplot() + 
+  geom_line(data = rmse1, aes(x = Year, y = dlnBrent),color = "blue") +
+  geom_line(data = rmse2, aes(x = Year, y = dlnBrent),color = "red") +
+  labs(
+    title = "CV RMSE for dlnBrent",
+    x = "Date",
+    y = "RMSE",
+    guides(colour=guide_legend(title="Fit")))
+
+```
+
+```{r, echo=FALSE}
+ggplot() + 
+  geom_line(data = rmse1, aes(x = Year, y = dlnWTI),color = "blue") +
+  geom_line(data = rmse2, aes(x = Year, y = dlnWTI),color = "red") +
+  labs(
+    title = "CV RMSE for dlnWTI",
+    x = "Date",
+    y = "RMSE",
+    guides(colour=guide_legend(title="Fit")))
+
+
+```
+
+```{r, echo=FALSE}
+ggplot() + 
+  geom_line(data = rmse1, aes(x = Year, y = dlnNYMEX),color = "blue") +
+  geom_line(data = rmse2, aes(x = Year, y = dlnNYMEX),color = "red") +
+  labs(
+    title = "CV RMSE for Personal dlnNYMEX",
+    x = "Date",
+    y = "RMSE",
+    guides(colour=guide_legend(title="Fit")))
+
+
+```
+
+### Chose and fit the model, then forecasted from the chosen model
+
+```{r, echo=FALSE}
+# estimate model coefficients using `VAR()`
+VAR_est <- VAR(y = ts_obj, p = 10)
+VAR_est
+```
+
+### obtain the adj. R\^2 from the output of 'VAR()'
+
+```{r, echo=FALSE}
+summary(VAR_est$varresult$dlnBrent)$adj.r.squared
+```
+
+### compute iterated forecasts for dlnBrent, dlnWTI, and dlnNYMEX for the next 10 quarters
+
+```{r, echo=FALSE}
+
+forecasts <- predict(VAR_est)
+forecasts
+```
+
+### Visualize the iterated forecasts
+
+```{r, echo=FALSE}
+plot(forecasts)
+```

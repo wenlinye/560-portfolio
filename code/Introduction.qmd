@@ -1,0 +1,39 @@
+---
+title: "Introduction"
+editor: visual
+---
+
+# **"Predicting Crude Oil Futures Prices: An Investigation of Key Drivers and Time Series Modeling Approach"**
+
+## background
+
+```{r, echo=FALSE, out.width = '200%'}
+knitr::include_graphics("cp2.jpg")
+
+```
+
+Crude oil has been the backbone of modern industrialization, powering transportation, manufacturing, and a wide range of economic activities. As such, fluctuations in crude oil prices can have a significant impact on the global economy, affecting everything from inflation and employment rates to national security and geopolitical stability. In recent years, crude oil futures prices, such as WTI, Brent, and NYMEX, have become increasingly popular as financial instruments for investors looking to profit from the volatility of crude oil prices.
+
+However, predicting the future prices of crude oil futures remains a challenging task due to the complex and dynamic nature of the global energy market. There are a multitude of factors that can impact crude oil prices, ranging from economic indicators and natural disasters to political events and technological innovations. As a result, understanding the key drivers of crude oil prices and their interrelationships is critical for making accurate predictions and informed investment decisions.
+
+The purpose of this project is to investigate the various factors that can affect crude oil futures prices and evaluate the performance of traditional time series models in predicting these prices. Specifically, we will examine the impact of oil production and inventory levels, economic indicators such as GDP, inflation, and employment rates, weather patterns and natural disasters, political events and policies, and technological advancements and innovations in the energy sector.
+
+By analyzing the historical data of crude oil futures prices and relevant variables, we aim to identify the most significant drivers of crude oil futures prices and develop a reliable forecasting model that can provide valuable insights for investors and policymakers. The results of this study will contribute to a better understanding of the complex dynamics of the global energy market and provide useful information for individuals and organizations seeking to manage their exposure to crude oil price risk.
+
+## Ten Important Questions.
+
+1.  Which economic indicators are most closely correlated with crude oil futures prices, and how do they impact the price trends?
+2.  What is the relationship between oil production and inventory levels, and how does this impact crude oil futures prices?
+3.  Can crude oil futures prices have a significant influence on each other when taking all of them into consideration?
+4.  Are there significant differences in the drivers of WTI, Brent, and NYMEX crude oil futures prices, and how can these differences be explained?
+5.  Can volatility modeling techniques, such as GARCH, provide more accurate forecasts of crude oil futures prices?
+6.  Can machine learning algorithms, such as random forests or neural networks, outperform traditional time series models in predicting crude oil futures prices?
+7.  How effective are ensemble models that combine multiple time series models in predicting crude oil futures prices, and do they outperform individual models?
+8.  What is the optimal lag length for time series models to accurately predict crude oil futures prices, and how does this vary across different variables?\
+9.  How have technological advancements and innovations in the energy sector impacted the demand for crude oil, and what implications does this have for future prices?
+10. How do natural disasters and weather patterns affect crude oil production and transportation, and how do these disruptions impact crude oil futures prices?
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("cp1.jpg")
+
+```

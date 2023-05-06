@@ -1,0 +1,4 @@
+---
+title: "Spectral Analysis and Filtering"
+editor: visual
+---

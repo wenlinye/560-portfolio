@@ -1,0 +1,472 @@
+---
+title: "ARMA/ARIMA/SARIMA Models"
+---
+
+# ARIMA
+
+## Modeling Brent Data
+
+```{r}
+library(rugarch)
+library(tseries)
+library(FinTS)
+library(ggplot2)
+library(xts)
+library(fBasics)
+date<-da[,1]
+date<-as.Date(date)
+da1<-da[,2]
+rets<-as.xts(da1,date)
+da2<-(log(rets))
+lnbrent<-na.omit(da2)
+
+
+# Time Series Plot
+plot(lnbrent,xlab='Date(2018-2023)',ylab='lnbrent',main='lnbrent time series')
+
+# Lag Plot
+lag.plot(lnbrent, seasonal = FALSE, lags = 10, do.lines = FALSE)
+
+#ACF
+acf(lnbrent,lag.max = 20)
+
+#PACF
+pacf(lnbrent,lag.max=20)
+
+#ADF test
+adf.test(dlnbrent)
+
+#construct dlnbrent
+da3<-diff(log(rets))
+dlnbrent<-na.omit(da3)
+
+#ADF test
+adf.test(dlnbrent)
+
+#ACF
+acf(dlnbrent,lag.max = 20)
+
+#PACF
+pacf(dlnbrent,lag.max=20)
+
+#ARIMA
+model=arima(lnbrent,include.mean=TRUE,order=c(0,1,1));model
+
+#Auto ARIMA
+library(forecast)
+yhat=auto.arima(lnbrent,ic="aic")
+summary(yhat)
+
+#Residuals
+tsdiag(model)
+Box.test(model$residuals,type="Ljung-Box")
+
+#Forecasplot
+plot(forecast(model,h=20),xlim=c(1000,2000))
+
+```
+
+## Modeling WTI Data**
+
+```{r}
+lnWTI<-na.omit(da2)
+
+
+# Time Series Plot
+plot(lnWTI,xlab='Date(2018-2023)',ylab='lnWTI',main='lnWTI time series')
+
+# Lag Plot
+lag.plot(lnWTI, seasonal = FALSE, lags = 10, do.lines = FALSE)
+
+#ACF
+acf(lnWTI,lag.max = 20)
+
+#PACF
+pacf(lnWTI,lag.max=20)
+
+#ADF test
+adf.test(lnWTI)
+
+#construct dlnbrent
+da3<-diff(log(rets))
+dlnWTI<-na.omit(da3)
+
+#Time series
+plot(dlnWTI,xlab='Date(2018-2023)',ylab='lnWTI',main='dlnWTI time series')
+
+#ADF test
+adf.test(dlnWTI)
+
+#ACF
+acf(dlnWTI,lag.max = 20)
+
+#PACF
+pacf(dlnWTI,lag.max=20)
+
+#ARIMA
+model=arima(lnWTI,include.mean=TRUE,order=c(0,1,1));model
+
+#Auto ARIMA
+library(forecast)
+yhat=auto.arima(lnWTI,ic="aic")
+summary(yhat)
+
+#Residuals
+tsdiag(model)
+Box.test(model$residuals,type="Ljung-Box")
+
+#Forecasplot
+plot(forecast(model,h=20),xlim=c(1000,2000))
+```
+
+
+## Modeling Nymex Data**
+
+```{r}
+lnNYMEX<-na.omit(da2)
+
+
+# Time Series Plot
+plot(lnNYMEX,xlab='Date(2018-2023)',ylab='lnNYMEX',main='lnNYMEX time series')
+
+# Lag Plot
+lag.plot(lnNYMEX, seasonal = FALSE, lags = 10, do.lines = FALSE)
+
+#ACF
+acf(lnNYMEX,lag.max = 20)
+
+#PACF
+pacf(lnNYMEX,lag.max=20)
+
+#ADF test
+adf.test(lnNYMEX)
+
+#construct dlnbrent
+da3<-diff(log(rets))
+dlnNYMEX<-na.omit(da3)
+
+#Time series
+plot(dlnNYMEX,xlab='Date(2018-2023)',ylab='dlnNYMEX',main='dlnNYMEX time series')
+
+#ADF test
+adf.test(dlnNYMEX)
+
+#ACF
+acf(dlnNYMEX,lag.max = 20)
+
+#PACF
+pacf(dlnNYMEX,lag.max=20)
+
+#ARIMA
+model=arima(lnNYMEX,include.mean=TRUE,order=c(3,1,2));model
+
+#Auto ARIMA
+library(forecast)
+yhat=auto.arima(lnNYMEX,ic="aic")
+summary(yhat)
+
+#Residuals
+tsdiag(model)
+Box.test(model$residuals,type="Ljung-Box")
+
+#Forecasplot
+plot(forecast(model,h=20),xlim=c(1000,2000))
+
+```
+
+
+# SARIMA Models
+
+## Decide data for Sarima analysis
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+```
+
+```{r, echo=FALSE}
+# load required libraries
+library(readxl)
+
+library(tidyverse)
+
+
+# download oil inventory data from the EIA website
+inventory <- read_excel("WCESTUS1w.xls", sheet = "Data 1", skip = 6)
+inventory <- inventory[, c("30239", "326979")]
+colnames(inventory) <- c("date", "inventory")
+inventory$date <- as.Date(inventory$date)
+inventory <- subset(inventory, date >= as.Date("1982-08-20") & date <= as.Date("2023-03-31"))
+
+
+# Convert inventory data to time series
+inventory_ts <- ts(inventory$inventory, start = c(1982, 34), frequency = 52)
+autoplot(inventory_ts, xlab = "Time Span",ylab = "inventory levels")+ggtitle("US weekly inventory levels from 1982 to present") 
+```
+
+## Seasonal Difference
+
+```{r, echo=FALSE}
+dec=decompose(inventory_ts,type = c("additive", "multiplicative"))
+plot(dec)
+```
+
+```{r, echo=FALSE}
+ggAcf(inventory_ts,40)
+```
+
+```{r, echo=FALSE}
+ggPacf(inventory_ts,40)
+```
+
+Apparent seasonal correlation can be seen by the positive correlation at seasonal lags 52, 104, 156, 208
+
+```{r, echo=FALSE}
+gglagplot(inventory_ts, do.lines=FALSE, set.lags = c(52, 104, 156, 208))
+```
+
+first ordinary differencing
+
+```{r, echo=FALSE}
+inventory_ts%>% diff() %>% ggtsdisplay()
+```
+
+first seasonal differencing
+
+```{r, echo=FALSE}
+inventory_ts %>% diff(lag=52) %>% ggtsdisplay() #first seasonal differencing
+```
+
+both seasonal differencing and ordinary differencing
+
+```{r, warning=FALSE, echo=FALSE}
+inventory_ts %>% diff(lag=52) %>% diff() %>% ggtsdisplay()
+
+```
+
+```{r, warning=FALSE, echo=FALSE}
+adf_inventory_ts <-inventory_ts %>% diff(lag=52) %>% diff()
+tseries::adf.test(adf_inventory_ts)
+```
+
+## Model Fitting
+
+```{r, message = FALSE,warning=FALSE, echo=FALSE}
+require(gridExtra)
+p1 <- ggAcf(adf_inventory_ts, 40) + ggtitle(" ACF: Inventory levels")
+p2 <- ggPacf(adf_inventory_ts, 40) + ggtitle("PACF: Inventory levels")
+
+grid.arrange(p1,p2, nrow=2)
+
+```
+
+```{r, warning=FALSE, echo=FALSE}
+require(gridExtra)
+p3 <- ggAcf(adf_inventory_ts, 200) + ggtitle(" ACF: Inventory levels")
+p4 <- ggPacf(adf_inventory_ts, 200) + ggtitle("PACF: Inventory levels")
+
+grid.arrange(p3,p4, nrow=2)
+
+```
+
+```{r, warning=FALSE, echo=FALSE}
+######################## Check for different combinations ########
+
+
+#write a funtion
+SARIMA.c=function(p1,p2,q1,q2,P1,P2,Q1,Q2,data){
+  
+  #K=(p2+1)*(q2+1)*(P2+1)*(Q2+1)
+  
+  temp=c()
+  d=1
+  D=1
+  s=12
+  
+  i=1
+  temp= data.frame()
+  ls=matrix(rep(NA,9*50),nrow=50)
+  
+  
+  for (p in p1:p2)
+  {
+    for(q in q1:q2)
+    {
+      for(P in P1:P2)
+      {
+        for(Q in Q1:Q2)
+        {
+          if(p+d+q+P+D+Q<=9)
+          {
+            
+            model<- Arima(data,order=c(p-1,d,q-1),seasonal=c(P-1,D,Q-1))
+            ls[i,]= c(p-1,d,q-1,P-1,D,Q-1,model$aic,model$bic,model$aicc)
+            i=i+1
+            #print(i)
+            
+          }
+          
+        }
+      }
+    }
+    
+  }
+  
+  
+  temp= as.data.frame(ls)
+  names(temp)= c("p","d","q","P","D","Q","AIC","BIC","AICc")
+  
+  temp
+  
+}
+```
+
+```{r, warning=FALSE, echo=FALSE}
+# by ACF Plot: q=1,3; Q=1 and PACF plot: p=1,3; P=1,2,3 
+output=SARIMA.c(p1=2,p2=4,q1=2,q2=4,P1=1,P2=4,Q1=1,Q2=2,data=inventory_ts)
+#output
+
+
+```
+
+
+```{r, warning=FALSE, echo=FALSE}
+output[which.min(output$AIC),] 
+
+```
+
+```{r, warning=FALSE, echo=FALSE}
+output[which.min(output$BIC),]
+```
+
+```{r, warning=FALSE, echo=FALSE}
+
+output[which.min(output$AICc),]
+```
+
+## Model diagnosis
+
+```{r, echo=FALSE}
+set.seed(123)
+model_output <- capture.output(sarima(inventory_ts, 1,1,1,0,1,1,52))
+
+```
+
+
+```{r, echo=FALSE}
+cat(model_output[68:99], model_output[length(model_output)], sep = "\n") 
+```
+
+```{r, echo=FALSE}
+fit <- Arima(inventory_ts, order=c(1,1,1), seasonal=c(0,1,1))
+summary(fit)
+```
+
+
+## Forecasting using the selected model
+
+```{r, echo=FALSE}
+fit %>% forecast(h=156) %>% autoplot() #next 3 years
+```
+
+## Compared SARIMA model with all the benchmark methods.
+
+```{r, echo=FALSE}
+autoplot(inventory_ts) +
+  autolayer(meanf(inventory_ts, h=52),
+            series="Mean", PI=FALSE) +
+  autolayer(naive(inventory_ts, h=52),
+            series="Naïve", PI=FALSE) +
+  autolayer(snaive(inventory_ts, h=52),
+            series="SNaïve", PI=FALSE)+
+  autolayer(rwf(inventory_ts, drift=TRUE, h=52),
+            series="Drift", PI=FALSE)+
+  autolayer(forecast(fit,52), 
+            series="fit",PI=FALSE) +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+```{r, echo=FALSE}
+f2 <- snaive(inventory_ts, h=156) 
+
+checkresiduals(f2)
+```
+
+```{r, warning=FALSE, echo=FALSE}
+f1 <- meanf(inventory_ts, h=156)
+checkresiduals(f1)
+```
+
+```{r, warning=FALSE, echo=FALSE}
+accuracy(f1)
+```
+
+```{r, warning=FALSE, echo=FALSE}
+accuracy(f2)
+```
+
+```{r, warning=FALSE, echo=FALSE}
+accuracy(fit)
+```
+
+
+```{r, warning=FALSE, echo=FALSE}
+library(knitr)
+
+# Compute accuracy for each model
+acc_f1 <- accuracy(f1)
+acc_f2 <- accuracy(f2)
+acc_fit <- accuracy(fit)
+
+# Combine accuracy results into a data frame
+acc_df <- data.frame(Model = c("f1", "f2", "fit"),
+                     ME = c('5172.6578975676', acc_f2[1], acc_fit[1]),
+                     RMSE = c(acc_f1[2], acc_f2[2], acc_fit[2]),
+                     MAE = c(acc_f1[3], acc_f2[3], acc_fit[3]))
+
+# Display table using kable
+kable(acc_df, format = "markdown")
+
+```
+
+## Seasonal cross validation
+
+
+```{r, warning=FALSE, echo=FALSE}
+forecast.fit <- function(inventory_ts, h){forecast(fit, h=h)}
+
+
+e1 <- tsCV(inventory_ts, forecastfunction = forecast.fit, h=1)
+
+e3 <- tsCV(inventory_ts, forecastfunction = forecast.fit, h=52)
+```
+
+```{r, warning=FALSE, echo=FALSE}
+
+# Compute MAE and RMSE
+rmse_e1 <- sqrt(round(mean(e1^2, na.rm=TRUE),2))
+rmse_e3 <- sqrt(round(mean(e3^2, na.rm=TRUE),2))
+
+# Combine results into a data frame
+results <- data.frame(
+  Metric = c("RMSE", "RMSE"),
+  Horizon = c("h=1", "h=52"),
+  Value = c( rmse_e1, rmse_e3)
+)
+
+# Print results as a table using knitr
+kable(results, format = "markdown")
+```

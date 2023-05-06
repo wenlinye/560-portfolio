@@ -1,0 +1,46 @@
+---
+title: "Data Sources"
+editor: visual
+---
+
+In order to study predictions of Crude Oil Futures Prices that require investigation of Key Drivers and Time Series Modeling Approach, this study selects the closing price of Brent crude oil futures, WTI crude oil futures prices, and NYMEX crude oil futures prices as three different data sets, all of which come from Yahoo Finance. In addition, I also investigated several factors that could effect the price of these crude oil futures prices: economic factors like CPI,and GDP, and oil production and inventory levels
+
+ 
+
+## **Yahoo Finance**
+
+Yahoo Finance is the world's leading financial media, the site provides financial news, data and commentary, including stock quotes, press releases, financial reports and original content. In addition, the site will provide some online tools for personal finance. This research can obtain the product price of financial market investment portfolio, including commodity price, stock price, futures price and so on. Based on this, this study selects the daily closing prices of three crude oil futures from January 2, 2018 to February 15, 2023 for follow-up analysis, and the unit is: USD/barrel.
+
+To further trace the initial source of data, the closing price of Brent crude oil futures and WTI crude oil futures prices come from International Petroleum Exchange (IPE); the price of NYMEX crude oil futures comes from New York Mercantile Exchange (NYMEX). Founded in 1980, IPE is a London-based futures and options exchange for energy-related commodities. It has been a subsidiary of Intercontinental Exchange (ICE) since its acquisition in 2001 and is now known as ICE Futures. NYMEX, the world's largest physical commodity futures exchange, is today part of the Chicago Mercantile Exchange Group (CME Group), the world's leading and most diverse derivatives market. The CME Group consists of four exchanges: Chicago Mercantile Exchange (CME), Chicago Board of Trade (CBOT), New York Mercantile Exchange (NYMEX) and Commodity Exchange (COMEX). Each exchange lists a broad range of futures products, commodities and global benchmarks for major asset classes.
+
+ 
+
+[Sources: <https://finance.yahoo.com/>]{.underline}
+
+## FRED (Federal Reserve Economic Data)
+
+One economic indicator that can be used to analyze the influence of macroeconomic factors on Brent crude oil prices is the US Consumer Price Index (CPI). The CPI measures the average change in prices over time for a basket of goods and services that consumers purchase. It is widely used as a measure of inflation and can provide insight into the overall health of the economy.
+
+The CPI data I chose earlier is from the Federal Reserve Economic Data (FRED) database, which is maintained by the Federal Reserve Bank of St. Louis. The specific dataset I chose is the "Consumer Price Index for All Urban Consumers: All Items" dataset, which is the same as the "All Items, All Urban Consumers - CPI" dataset from the Bureau of Labor Statistics (BLS).
+
+The FRED CPI dataset includes monthly CPI data from January 1947 to February 2023, and is reported as an index, with the base period set to 1982-1984 (=100). The dataset includes the overall CPI as well as various sub-indices broken down by expenditure category, such as food, housing, transportation, and medical care.
+
+Another economic indicator that can be used to analyze the influence of macroeconomic factors on Brent crude oil prices is the US Gross Domestic Product (GDP). GDP is a measure of the total value of goods and services produced within a country in a given period of time, and can provide insight into the overall health of the economy.
+
+The GDP data I chose is from the Federal Reserve Economic Data (FRED) database, which is maintained by the Federal Reserve Bank of St. Louis. The specific dataset I chose is the "Real Gross Domestic Product" dataset, which reports the inflation-adjusted measure of the value of goods and services produced by the US economy.
+
+The dataset includes quarterly data from 1947 to the present, and is reported in billions of chained 2012 dollars. The data is broken down by various categories of economic activity, such as personal consumption expenditures, gross private domestic investment, government consumption expenditures and gross investment, and net exports of goods and services.
+
+[Sources: <https://fred.stlouisfed.org/series/CPIAUCSL/>]{.underline}
+
+[Sources: <https://fred.stlouisfed.org/series/GDPC1/>]{.underline}
+
+## EIA (U.S. Energy Information Administration)
+
+Another dataset that could be used to analyze the influence of oil production and inventory levels on Brent crude oil prices is the "Weekly Petroleum Status Report" from the U.S. Energy Information Administration (EIA). This report provides data on crude oil production, inventory levels, and other key metrics for the United States, which is one of the largest producers and consumers of oil in the world.
+
+The EIA data I chose is from the US Energy Information Administration (EIA), which is a statistical agency of the US Department of Energy. The specific dataset I chose is the "Weekly U.S. Ending Stocks of Crude Oil and Petroleum Products" dataset, which reports the weekly inventory levels of crude oil and petroleum products in the US.
+
+The dataset includes weekly data from January 1982 to the present, and is broken down by various categories of petroleum products, such as gasoline, diesel fuel, jet fuel, and other petroleum products. The inventory levels are reported in thousands of barrels, and the data is reported on a national level as well as broken down by region.
+
+[Sources: <https://www.eia.gov/dnav/pet/pet_stoc_wstk_a_EPC0_SAE_mbbl_w.htm/>]{.underline}

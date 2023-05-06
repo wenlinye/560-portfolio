@@ -1,0 +1,25 @@
+---
+title: "About me"
+editor: visual
+---
+
+My name is Wenlin Ye, and my GU netID is wy162. You can also all my English name Tony. I graduated from UC Santa Barbara financial mathematics and statistics honor program. During my first two years of undergraduate studies, my professional interests lie in pure math and numerical theory. I hope to learn Python and R programming also SQL database system which is helpful for me to accumulate practical experience in applying for interns or career jobs. My ideal job after graduation would be a data analyst for the basketball pro league. What I am passionate about are mainly the material engineering field and fintech. Typically, I would d love to watch NBA games and do predictions about players' performance. At the same time, I prefer to tap into exciting and meaningful activities like receiving helicopter operation training, which is both challenging and time-consuming. The fun fact is that I will save my life because I can parachute. I am a cat person.
+
+## Academic Interests
+
+Pure math and Numerical theory
+
+Stochastic process for financial mathematics
+
+## Education
+
+2018-2022: UC Santa Barbara
+
+2022-2023: Georgetown
+
+## Ingot
+
+```{r, echo=FALSE, out.width = '200%'}
+knitr::include_graphics("ingot.jpg")
+
+```
