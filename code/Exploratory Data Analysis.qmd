@@ -25,6 +25,56 @@ library(zoo)            # working with time series data
 ```
 
 ```{r}
+# Download data from Yahoo Finance
+brent <- tq_get("BZ=F", 
+                from = "2018-01-02", 
+                to = "2023-02-15",
+                get = "stock.prices")
+
+# Convert data to a time series object
+brent_ts <- ts(brent$close, start = c(2018, 1), end = c(2023, 2), frequency = 365)
+brent_ts <- na_ma(brent_ts, k = 4, weighting = "exponential")
+# Plot decomposed time series
+de <-autoplot(decompose(brent_ts), facets = TRUE) +
+  labs(title = "Decomposition of Brent Crude Oil Futures Time Series")
+
+ggsave("brent_decomp.png", plot = de, width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+# Create lag plot of Brent crude oil futures data
+lag1 <- ggplot(data = data.frame(y = brent_ts[-1], lag = brent_ts[-length(brent_ts)]),
+       aes(x = lag, y = y)) +
+  geom_point() +
+  labs(title = "Lag Plot of Brent Crude Oil Futures Data")
+
+ggsave("lag1.png", plot = lag1, width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+# Create grid of lag plots for Brent crude oil futures data
+lags <- gglagplot(brent_ts, do.lines=FALSE)+ggtitle("Lag Plots of Brent Crude Oil Futures Data")
+
+ggsave("lags.png", plot = lags, width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+# Create ACF and PACF plots for Brent crude oil futures data
+acf <- ggAcf(brent_ts,main = "ACF Plot of Brent Crude Oil Futures")
+```
+
+```{r}
+pacf <- ggPacf(brent_ts, 48,main = "PACF Plot of Brent Crude Oil Futures")
+ggsave("brent_acf.png", plot = acf, width = 10, height = 6, dpi = 300)
+ggsave("brent_pacf.png", plot = pacf, width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+library(aTSA)
+adf.test(brent_ts)
+```
+
+```{r}
 ma(elecsales, 1)
 
 autoplot(elecsales, series="lnbrent") +
