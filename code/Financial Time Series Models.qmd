@@ -1,0 +1,183 @@
+---
+title: "Financial Time Series Models (ARCH/GARCH)"
+editor: visual
+---
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(forecast)
+library(astsa) 
+library(xts)
+library(tseries)
+library(fpp2)
+library(fma)
+library(lubridate)
+library(tidyverse)
+library(TSstudio)
+library(quantmod)
+library(tidyquant)
+library(plotly)
+library(ggplot2)
+```
+
+```{r, echo=FALSE}
+da <- read.csv("datasets_ln.csv", encoding = "UTF-8")
+```
+
+```{r, echo=FALSE}
+date<-da[,1]
+date<-as.Date(date)
+
+da1<-da[,2]
+rets<-as.xts(da1,date)
+da2<-diff(log(rets))
+Brent<-na.omit(da2)
+
+da3<-da[,3]
+rets<-as.xts(da3,date)
+da4<-diff(log(rets))
+WTI<-na.omit(da4)
+
+da5<-da[,4]
+rets<-as.xts(da5,date)
+da6<-diff(log(rets))
+NYMEX<-na.omit(da6)
+
+date <- date[-1]
+dd<-data.frame(date,Brent,WTI,NYMEX)
+
+colnames(dd)<-c("Date", "Brent","WTI","NYMEX")
+knitr::kable(head(dd))
+write.csv(dd, "dd.csv", row.names = FALSE)
+
+```
+
+```{r, echo=FALSE}
+returns=ts(dd$WTI,freq=1)
+
+# create an xts object for WTI returns
+wti_returns <- xts(dd$WTI, order.by = dd$Date)
+
+# plot the time series of WTI returns with the specified x and y labels
+plot(wti_returns, xlab = "Date", ylab = "Returns")
+```
+
+```{r, echo=FALSE}
+acf(returns) #2
+```
+
+```{r, echo=FALSE}
+pacf(returns) #2
+```
+
+```{r, echo=FALSE}
+acf(returns^2) #1234
+```
+
+```{r, echo=FALSE}
+pacf(returns^2) #1 4
+```
+
+```{r, warning= FALSE,echo=FALSE}
+adf.test(returns)
+pp.test(returns)
+```
+
+```{r, echo=FALSE}
+ARMA <- list() ## set counter
+cc <- 1
+for (p in 0:4) {
+  for (q in 0:4)
+  {
+    ARMA[[cc]] <- Arima(returns, order=c(p,0,q))
+    cc <- cc + 1
+  }
+  
+} 
+
+ARMA_AIC <- sapply(ARMA, AIC) ## model with lowest AIC is the best
+min(ARMA_AIC)
+```
+
+```{r, echo=FALSE}
+which(ARMA_AIC == min(ARMA_AIC))
+```
+
+```{r, echo=FALSE}
+ARMA[which(ARMA_AIC == min(ARMA_AIC))]
+```
+
+```{r, echo=FALSE}
+auto.arima(returns)
+```
+
+### Check the standardized residuals and decide if further modeling is needed
+
+```{r, echo=FALSE}
+sarima(returns, 3,0,3)
+```
+
+
+### Choose the appropriate GARCH(p,q) model (Plot ACF and PACF of squared returns/squared residuals of the data) whether ARCH/GARCH model is appropriate
+
+```{r, echo=FALSE}
+arma = Arima(returns, order=c(3,0,3)) 
+arma.re= arma$residuals
+#or
+#arma.re=residuals(arma)
+
+acf(arma.re^2) #q=1,2,4
+```
+
+```{r, echo=FALSE}
+pacf(arma.re^2) #p=1
+```
+
+```{r, warning=FALSE, echo=FALSE}
+model <- list() ## set counter
+cc <- 1
+for (p in 1:2) {
+  for (q in 1:4) {
+  
+model[[cc]] <- garch(arma.re,order=c(q,p),trace=F)
+cc <- cc + 1
+}
+} 
+
+## get AIC values for model evaluation
+GARCH_AIC <- sapply(model, AIC) ## model with lowest AIC is the best
+which(GARCH_AIC == min(GARCH_AIC))
+```
+
+```{r, echo=FALSE}
+model[[which(GARCH_AIC == min(GARCH_AIC))]]
+```
+
+### Chosen best AR+ARCH/ARMA+GARCH or ARIMA-ARCH/GARCH or model
+
+```{r, warning=FALSE, echo=FALSE}
+library(fGarch)
+summary(fit11 <- garchFit(~garch(1,1),arma.re,trace = F))
+```
+
+```{r, echo=FALSE}
+summary(fit22 <- garchFit(~arma(3,3)+garch(1,1), data=returns))
+```
+
+### Comment on final model and analyze its residuals according to the Box Ljung test results from the model
+
+```{r}
+fit2<-garch(arma.re,order=c(1,1),trace=F)
+checkresiduals(fit2) #relatively doing a good job
+```
+
+```{r}
+qqnorm(fit2$residuals, pch = 1)
+qqline(fit2$residuals, col = "blue", lwd = 2)
+```
+
+```{r}
+Box.test (fit2$residuals, type = "Ljung")
+```
+
