@@ -1,0 +1,109 @@
+---
+title: "Data Visualization"
+editor: visual
+---
+
+```{r}
+# Load packages
+library(tidyquant) # for financial data analysis
+library(ggplot2) # for plotting
+
+# Download data from Yahoo Finance
+brent <- tq_get("BZ=F", 
+                from = "2018-01-02", 
+                to = "2023-02-15",
+                get = "stock.prices")
+
+
+
+brent
+```
+
+```{r warning=FALSE}
+# Load the quantmod package
+library(quantmod)
+library(imputeTS)
+library(ggplot2)
+library(reshape2)
+library(tidyverse)
+# Define the symbols and date range
+symbols <- c("BZ=F", "CL=F", "NG=F")
+start_date <- "2018-01-02"
+end_date <- "2023-02-15"
+
+# Download the data
+Brent <- getSymbols(symbols[1], from = start_date, to = end_date, auto.assign = FALSE)
+WTI <- getSymbols(symbols[2], from = start_date, to = end_date, auto.assign = FALSE)
+NYMEX <- getSymbols(symbols[3], from = start_date, to = end_date, auto.assign = FALSE)
+
+
+# Extract the closing prices
+Brent_close <- Brent[,"BZ=F.Close"]
+WTI_close <- WTI[,"CL=F.Close"]
+NYMEX_close <- NYMEX[,"NG=F.Close"]
+Brent_close <- na_ma(Brent_close, k = 4, weighting = "exponential")
+WTI_close <- na_ma(WTI_close, k = 4, weighting = "exponential")
+NYMEX_close <- na_ma(NYMEX_close, k = 4, weighting = "exponential")
+# Combine the closing prices into a data frame
+oil_prices <- data.frame(Brent = Brent_close, WTI = WTI_close, NYMEX = NYMEX_close)
+
+
+p <- autoplot(Brent_close) +
+  ggtitle("Time Series of Daily Closing Prices of Brent Crude Oil Futures") +
+  ylab("Closing Price (USD)") +
+  xlab("Date") +
+  geom_smooth(method = "auto", se = TRUE, color = "blue")
+```
+
+```{r}
+pW <- autoplot(WTI_close) +
+  ggtitle("Time Series of Daily Closing Prices of WTI Crude Oil Futures") +
+  ylab("Closing Price (USD)") +
+  xlab("Date") +
+  geom_smooth(method = "auto", se = TRUE, color = "yellow")
+```
+
+```{r}
+ggsave("brent_prices.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave("WTI_prices.png", plot = pW, width = 10, height = 6, dpi = 300)
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("brent_prices.png")
+
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("WTI_prices.png")
+```
+
+```{r}
+# Load the required packages
+library(ggplot2)
+
+# Create a histogram of the closing prices
+histogram <-ggplot(data = Brent_close, aes(x = Brent_close)) +
+  geom_histogram(fill = "blue", color = "white") +
+  ggtitle("Histogram of Daily Closing Prices of Brent Crude Oil Futures") +
+  xlab("Closing Price (USD)") +
+  ylab("Frequency")
+
+# Create a density plot of the closing prices
+density <- ggplot(data = Brent_close, aes(x = Brent_close, y = ..density..)) +
+  geom_density(fill = "lightblue", color = "blue") +
+  ggtitle("Density Plot of Daily Closing Prices of Brent Crude Oil Futures") +
+  xlab("Closing Price (USD)") +
+  ylab("Density")
+
+ggsave("brent_histogram.png", plot = histogram, width = 10, height = 6, dpi = 300)
+ggsave("brent_density.png", plot = density, width = 10, height = 6, dpi = 300)
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("brent_histogram.png")
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("brent_density.png")
+```
+
