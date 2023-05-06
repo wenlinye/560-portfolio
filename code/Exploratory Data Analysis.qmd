@@ -1,0 +1,194 @@
+---
+title: "Exploratory Data Analysis"
+editor: visual
+---
+```{r}
+library(rugarch)
+library(tseries)
+library(FinTS)
+library(ggplot2)
+library(xts)
+library(fBasics)
+date<-da[,1]
+date<-as.Date(date)
+da1<-da[,2]
+rets<-as.xts(da1,date)
+da2<-diff(log(rets))
+dlnbrent<-na.omit(da2)
+dlnwti<-na.omit(da2)
+dlnnymex<-na.omit(da2)
+library(tidyverse)      # data manipulation and visualization
+library(lubridate)      # easily work with dates and times
+library(fpp2)           # working with time series data
+library(zoo)            # working with time series data
+
+```
+
+```{r}
+ma(elecsales, 1)
+
+autoplot(elecsales, series="lnbrent") +
+  autolayer(ma(elecsales,1), series="1-MA") +
+  xlab("Year") + ylab("lnbrent") +
+  ggtitle("lnbrent") +
+  scale_colour_manual(values=c("Data"="grey50","1-MA"="red"),
+                      breaks=c("Data","1-MA"))
+
+ma(elecsales, 3)
+
+autoplot(elecsales, series="lnbrent") +
+  autolayer(ma(elecsales,3), series="3-MA") +
+  xlab("Year") + ylab("lnbrent") +
+  ggtitle("lnbrent") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma(elecsales, 5)
+
+autoplot(elecsales, series="lnbrent") +
+  autolayer(ma(elecsales,5), series="5-MA") +
+  xlab("Year") + ylab("lnbrent") +
+  ggtitle("lnbrent") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+ma(elecsales, 15)
+
+autoplot(elecsales, series="lnbrent") +
+  autolayer(ma(elecsales,15), series="15-MA") +
+  xlab("Year") + ylab("lnbrent") +
+  ggtitle("lnbrent") +
+  scale_colour_manual(values=c("Data"="grey50","15-MA"="red"),
+                      breaks=c("Data","15-MA"))
+```
+
+
+```{r}
+ma(elecsales, 1)
+
+autoplot(elecsales, series="lnwti") +
+  autolayer(ma(elecsales,1), series="1-MA") +
+  xlab("Year") + ylab("lnwti") +
+  ggtitle("lnwti") +
+  scale_colour_manual(values=c("Data"="grey50","1-MA"="red"),
+                      breaks=c("Data","1-MA"))
+
+ma(elecsales, 3)
+
+autoplot(elecsales, series="lnwti") +
+  autolayer(ma(elecsales,3), series="3-MA") +
+  xlab("Year") + ylab("lnwti") +
+  ggtitle("lnwti") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma(elecsales, 5)
+
+autoplot(elecsales, series="lnwti") +
+  autolayer(ma(elecsales,5), series="5-MA") +
+  xlab("Year") + ylab("lnwti") +
+  ggtitle("lnwti") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+ma(elecsales, 15)
+
+autoplot(elecsales, series="lnwti") +
+  autolayer(ma(elecsales,15), series="15-MA") +
+  xlab("Year") + ylab("lnwti") +
+  ggtitle("lnwti") +
+  scale_colour_manual(values=c("Data"="grey50","15-MA"="red"),
+                      breaks=c("Data","15-MA"))
+```
+
+
+```{r}
+ma(elecsales, 1)
+
+autoplot(elecsales, series="lnnymex") +
+  autolayer(ma(elecsales,1), series="1-MA") +
+  xlab("Year") + ylab("lnnymex") +
+  ggtitle("lnnymex") +
+  scale_colour_manual(values=c("Data"="grey50","1-MA"="red"),
+                      breaks=c("Data","1-MA"))
+
+ma(elecsales, 3)
+
+autoplot(elecsales, series="lnnymex") +
+  autolayer(ma(elecsales,3), series="3-MA") +
+  xlab("Year") + ylab("lnnymex") +
+  ggtitle("lnnymex") +
+  scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+                      breaks=c("Data","3-MA"))
+
+ma(elecsales, 5)
+
+autoplot(elecsales, series="lnnymex") +
+  autolayer(ma(elecsales,5), series="5-MA") +
+  xlab("Year") + ylab("lnnymex") +
+  ggtitle("lnnymex") +
+  scale_colour_manual(values=c("Data"="grey50","5-MA"="red"),
+                      breaks=c("Data","5-MA"))
+
+ma(elecsales, 15)
+
+autoplot(elecsales, series="lnnymex") +
+  autolayer(ma(elecsales,15), series="15-MA") +
+  xlab("Year") + ylab("lnnymex") +
+  ggtitle("lnnymex") +
+  scale_colour_manual(values=c("Data"="grey50","15-MA"="red"),
+                      breaks=c("Data","15-MA"))
+```
+
+
+```{r}
+# Descriptive statistical analysis
+basicStats(dlnbrent)
+
+# Time Series Plot
+plot(dlnbrent,xlab='Date(2018-2023)',ylab='dlnbrent',main='dlnbrent time series')
+
+#ACF
+acf(dlnbrent,lag.max = 20)
+
+#PACF
+pacf(dlnbrent,lag.max=20)
+
+#ADF test
+adf.test(dlnbrent)
+```
+
+```{r}
+# Descriptive statistical analysis
+basicStats(dlnwti)
+
+# Time Series Plot
+plot(dlnwti,xlab='Date(2018-2023)',ylab='dlnwti',main='dlnwti time series')
+
+#ACF
+acf(dlnwti,lag.max = 20)
+
+#PACF
+pacf(dlnwti,lag.max=20)
+
+#ADF test
+adf.test(dlnwti)
+```
+
+```{r}
+# Descriptive statistical analysis
+basicStats(dlnnymex)
+
+# Time Series Plot
+plot(dlnnymex,xlab='Date(2018-2023)',ylab='dlnnymex',main='dlnnymex time series')
+
+#ACF
+acf(dlnnymex,lag.max = 20)
+
+#PACF
+pacf(dlnnymex,lag.max=20)
+
+#ADF test
+adf.test(dlnnymex)
+```
+
